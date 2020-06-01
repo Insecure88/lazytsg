@@ -10,7 +10,7 @@ LOCID=$1
 
 main(){
 	help(){
-		echo "The Lazy TSG Script v1.0 by Mico"
+		echo "The Lazy TSG Script v1.1 by Mico"
 
 		echo -e "\nUsage: ./lazy [LOCID]"
 
