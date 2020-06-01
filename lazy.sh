@@ -14,7 +14,7 @@ RPORT=$4
 
 main(){
 	help(){
-		echo -e "\nThe Lazy TSG Script v1.2 by Mico"
+		echo -e "\nThe Lazy TSG Script v1.1 by Mico"
 
 		echo -e "\nUsage: ./lazy (OPTIONS) [LOCID]"
 
@@ -22,6 +22,7 @@ main(){
 
 		echo -e "\t\t-h  \t\tShows this help message"
 		echo -e "\t\t-t  \t\tTunnels to a device behind the starbox | Usage: ./lazy -t [LOCID] [Remote IP] (Remote Port)"
+		echo -e "\t\t-i  \t\tDisplay IP address for Location | Usage: ./lazy -i [LOCID]"
 	}
 	pat="^[0-9]+$"
 	pat2="^([0-9]*\.){3}[0-9]*$"
@@ -57,7 +58,14 @@ main(){
     			echo -e "Missing or Invalid Remote IP Address"
     			help
     		fi
-
+		elif [[ "$ARG1" == '-i' ]]; then
+			if [[ "$ARG2" =~ $pat ]]; then
+				LOCID=$ARG2
+				IP=$(echo -e "select sip_ip from location_presence where locationid = '$LOCID' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star | egrep -o '^([0-9]{1,3}\.){3}[0-9]{1,3}')
+				echo $IP
+			else
+				echo -e "Missing or Invalid Location ID"
+			fi
 		elif [[ "$ARG1" == '-h' ]]; then
 			help
 		else

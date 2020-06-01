@@ -16,3 +16,4 @@ Usage: ./lazy (OPTIONS) [LOCID]
 Takes a locationID as an argument for launching a starbox survey
                 -h              Shows this help message
                 -t              Tunnels to a device behind the starbox | Usage: ./lazy -t [LOCID] [Remote IP] (Remote Port)
+		-i		Display IP address for Location | Usage: ./lazy -i [LOCID]
