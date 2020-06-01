@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Author: Mico
-# # Lazy TSGv1.1 survey
+# # Lazy TSGv1.2 survey
 # This is a shell script to automate some of my common starbox tasks
 # The code is sloppy and thrown together for now since I just started using this language yesterday.
 
@@ -16,6 +16,7 @@ NC='\033[0m' # No Color
 # Setting environment variables
 export SHELL=/bin/bash
 export TERM=xterm
+tunLink=$1
 
 banner() {
 	# Print The Banner
@@ -373,6 +374,12 @@ fs_Advanced(){
 	fi
 }
 
+tunnel(){
+	if [[ "$tunLink" ]]; then
+		echo -e "Tunnel: ${RED}$tunLink${NC}"
+	fi
+}
+
 light_Scan(){
 	echo "Doing Light Scan"
 }
@@ -489,6 +496,7 @@ main_Menu(){
 	get_MAC
 	os_Check
 	check_Orion
+	tunnel
 	get_TShape
 	cpu_Info
 	disk_Check
