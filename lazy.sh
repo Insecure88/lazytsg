@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Author: Mico
-# Lazy TSGv1.0
+# Lazy TSGv1.1
 # This is a shell script to automate some of my common starbox tasks
 # The code is sloppy and thrown together for now since I just started using this language yesterday.
 # This will handle the connection to the starbox and executing the survey script. 
 
 LOCID=$1
+
 main(){
 	help(){
 		echo "The Lazy TSG Script v1.0 by Mico"

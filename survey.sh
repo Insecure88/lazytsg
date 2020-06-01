@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Author: Mico
-# # Lazy TSGv1.0 survey
+# # Lazy TSGv1.1 survey
 # This is a shell script to automate some of my common starbox tasks
 # The code is sloppy and thrown together for now since I just started using this language yesterday.
 
@@ -144,7 +144,6 @@ check_Orion() {
 		echo -e "The Orion Connection is: ${RED}Inactive${NC}"
 	fi
 }
-
 
 phone_Reg(){
 	# Shows phone registrations using preboot
@@ -317,6 +316,63 @@ net_Dump(){
 	fi
 }
 
+fs_Restart(){
+	# This restarts freeswitch
+	echo -e "${YEL}Now Restarting Freeswitch....${NC}"
+	rm /mnt/kd/starwatch/1/ng-voyeur.sh 2>/dev/null
+	killall -9 freeswitch
+	rm /tmp/freeswitch/db/*
+	/etc/init.d/freeswitch start 1>/dev/null
+	echo -e "${YEL}Restart Complete${NC}"
+}
+
+fs_Super(){
+	# This enabled super logging mode in freeswitch 
+	echo -e "${YEL}Enabling Super Logging....${NC}"
+	export SOFIA_DEBUG=9
+	export NUA_DEBUG=9
+	export NTA_DEBUG=9
+	export TPORT_DEBUG=9
+	export TPORT_LOG=1
+	fs_Restart
+	unset SOFIA_DEBUG
+	unset NUA_DEBUG
+	unset NTA_DEBUG
+	unset TPORT_DEBUG
+	unset TPORT_LOG
+}
+
+fs_SIP(){
+	# This enables SIP traces in freeswitch commandline
+	echo -e "${YEL}Enabling SIP Tracing....${NC}"
+	export TPORT_LOG=1
+	fs_Restart
+	unset TPORT_LOG
+}
+
+fs_Advanced(){
+	echo -e "\n${GRE}Advanced FreeSWITCH Logging${NC}"
+	echo -e "#--------------------------#"
+
+	echo -e "\n${RED}**WARNING** THESE OPTIONS WILL RESTART FREESWITCH!${NC}\n"
+
+	echo -e "1)${LBL} Enable FreeSWITCH SIP Trace${NC}"
+	echo -e "2)${LBL} Enable FreeSWITCH Super Logging${NC}"
+	echo -e "\n"
+	read -p "Select menu option (#): " option
+	if [[ "$option" ]]; then
+		if [[ "$option" == 1 ]]; then
+			fs_SIP
+		elif [[ "$option" == 2 ]]; then
+			fs_Super
+		else
+			echo -e "${YEL}You entered an invalid option${NC}"
+		fi
+	else
+		echo -e "${YEL}No menu option selected${NC}"
+	fi
+}
+
 light_Scan(){
 	echo "Doing Light Scan"
 }
@@ -447,7 +503,8 @@ main_Menu(){
 	echo -e "5) ${LBL}CLI${NC}"
 	echo -e "6) ${LBL}Dump Network Info${NC}"
 	echo -e "7) ${LBL}Nmap VLAN 41${NC}"
-	echo -e "8) ${LBL}Exit${NC}\n"
+	echo -e "8) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
+	echo -e "9) ${LBL}Exit${NC}\n"
 
 	read -p "Select menu option (#): " menu_Scan
 	if [[ "$menu_Scan" ]]; then
@@ -473,6 +530,8 @@ main_Menu(){
 			echo -e "\n${YEL}Scanning VLAN 41${NC}\n"
 			nmap -sP 10.41.22.0/23
 		elif [[ $menu_Scan == 8 ]]; then
+			fs_Advanced
+		elif [[ $menu_Scan == 9 ]]; then
 			echo -e "\n${YEL}Exiting${NC}\n"
 			exit
 		else
