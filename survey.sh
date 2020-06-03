@@ -46,16 +46,16 @@ get_IP() {
 		echo -e "The Starbox is ${RED}Bridged${NC}"
 	fi
 
-	LAN1IP=$(ifconfig eth1 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
-	if [ "$LAN1IP" ]; then
-		echo -e "The LAN1 IP Address is: ${RED}$LAN1IP${NC}"
+	LAN2IP=$(ifconfig eth1 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+	if [ "$LAN2IP" ]; then
+		echo -e "The LAN2 IP Address is: ${RED}$LAN2IP${NC}"
 	fi
 	
-	LAN2IP=$(ifconfig eth2 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
-	echo -e "The LAN2 IP Address is: ${RED}$LAN2IP${NC}"
+	LAN3IP=$(ifconfig eth2 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+	echo -e "The LAN3 IP Address is: ${RED}$LAN3IP${NC}"
 	
-	VLANIP=$(ifconfig eth2.41 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
-	echo -e "The VLAN IP Address is: ${RED}$VLANIP${NC}"
+	VLAN41IP=$(ifconfig eth2.41 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+	echo -e "The VLAN41 IP Address is: ${RED}$VLAN41IP${NC}"
 	
 	FAILIP=$(ifconfig eth2.42 2>/dev/null | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 	if [ "$FAILIP" ]; then
