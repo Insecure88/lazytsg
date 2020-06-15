@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Author: Mico
-# # Lazy TSGv1.2 survey
+# # Lazy TSGv1.3 survey
 # This is a shell script to automate some of my common starbox tasks
 # The code is sloppy and thrown together for now since I just started using this language yesterday.
 
@@ -352,19 +352,31 @@ fs_SIP(){
 }
 
 fs_Advanced(){
-	echo -e "\n${GRE}Advanced FreeSWITCH Logging${NC}"
-	echo -e "#--------------------------#"
+	echo -e "\n${GRE} Advanced FreeSWITCH Logging${NC}"
+	echo -e "#-----------------------------#"
 
-	echo -e "\n${RED}**WARNING** THESE OPTIONS WILL RESTART FREESWITCH!${NC}\n"
+	echo -e "\n${RED}**WARNING** OPTIONS 2 AND 3 WILL RESTART FREESWITCH!${NC}\n"
 
-	echo -e "1)${LBL} Enable FreeSWITCH SIP Trace${NC}"
-	echo -e "2)${LBL} Enable FreeSWITCH Super Logging${NC}"
+	echo -e "1)${LBL} Enable Persistent FreeSWITCH Logs${NC}"
+	echo -e "2)${LBL} Enable FreeSWITCH SIP Trace${NC}"
+	echo -e "3)${LBL} Enable FreeSWITCH Super Logging${NC}"
 	echo -e "\n"
 	read -p "Select menu option (#): " option
 	if [[ "$option" ]]; then
 		if [[ "$option" == 1 ]]; then
-			fs_SIP
+			local psCheck=$(ps aux | egrep -i 'tail /tmp/freeswitch.log' | egrep -iv 'egrep')
+			if [[ "$psCheck" ]]; then
+				killall tail
+			fi
+			echo -e "${YEL}Backing up old logs....${NC}"
+			mkdir ~/freeswitch_old 2>/dev/null
+			cp /tmp/freeswitch.log.* ~/freeswitch_old
+			echo -e "${YEL}Starting persistent logging....${NC}"
+			nohup tail /tmp/freeswitch.log -f >> ~/freeswitch.log &
+			echo -e "${YEL}Process Complete. Now logging in ~ directory${NC}"
 		elif [[ "$option" == 2 ]]; then
+			fs_SIP
+		elif [[ "$option" == 3 ]]; then
 			fs_Super
 		else
 			echo -e "${YEL}You entered an invalid option${NC}"
@@ -378,6 +390,49 @@ tunnel(){
 	if [[ "$tunLink" ]]; then
 		echo -e "Tunnel: ${RED}$tunLink${NC}"
 	fi
+}
+
+pcap_Search(){
+	echo -e "\n${GRE}  Packet Capture Search${NC}"
+	echo -e "#-------------------------#"
+	echo -e "-${GRE}This tool searches pcap files for call samples${NC}"
+	echo -e "\n"
+	echo -e "${YEL}*NOTE* This only works on eth0 pcaps${NC}"
+	echo -e "\n"
+	local timestamp=""
+	read -p "Enter the date and time YYYY/MM/DD HH:MM : " timestamp
+	local endpoint=""
+	read -p "Enter the Phone # or ext or GUE (No formatting) ####... : " endpoint
+	local dir=""
+	read -p "Enter the pcap directory: " dir
+	echo -e "\n"
+	
+	ls $dir | grep '.' | while read file; do
+		echo -e "Now checking ${YEL}$file....${NC}" 
+		local input="$dir/$file"
+		if [[ "$endpoint" ]]; then
+			local numPat="^[0-9]+$"
+			if [[ "$endpoint" =~ $numPat ]]; then
+				ngrep -NtiW byline -I $input 'INVITE sip:' "udp port 5060" -O /tmp/cache 1>/dev/null 2>/dev/null
+				local sample=$(ngrep -qNtiW byline -I /tmp/cache "$endpoint" 2>/dev/null | egrep "$timestamp")
+				if [[ "$sample" ]]; then
+					pcap="$file"
+					echo -e "Call Sample Found! ${RED}$pcap${NC}"
+				fi
+				rm /tmp/cache 2>/dev/null
+			else
+				echo -e "Invalid Endpoint"
+			fi
+		else
+			ngrep -NtiW byline -I $input 'INVITE sip:' "udp port 5060" -O /tmp/cache 1>/dev/null 2>/dev/null
+			local sample=$(ngrep -qNtiW byline -I /tmp/cache 2>/dev/null | egrep "$timestamp")
+			if [[ "$sample" ]]; then
+				pcap="$file"
+				echo -e "Call Sample Found! ${RED}$pcap${NC}"
+			fi
+			rm /tmp/cache 2>/dev/null
+		fi
+	done
 }
 
 light_Scan(){
@@ -501,9 +556,9 @@ main_Menu(){
 	cpu_Info
 	disk_Check
 
-	echo -e "${LBL}*-----------------------------*${NC}"
-	echo -e "${LBL}What would you like to do?${NC}"
-	echo -e "${LBL}*-----------------------------*${NC}"
+	echo -e "*-----------------------------*${NC}"
+	echo -e "${LBL}  What would you like to do?${NC}"
+	echo -e "*-----------------------------*${NC}"
 	echo -e "1) ${LBL}Light Scan (Coming Soon)${NC}"
 	echo -e "2) ${LBL}Intensive Scan (Coming Soon)${NC}"
 	echo -e "3) ${LBL}Network Scan${NC}"
@@ -512,7 +567,8 @@ main_Menu(){
 	echo -e "6) ${LBL}Dump Network Info${NC}"
 	echo -e "7) ${LBL}Nmap VLAN 41${NC}"
 	echo -e "8) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
-	echo -e "9) ${LBL}Exit${NC}\n"
+	echo -e "9) ${LBL}Pcap Search${NC}"
+	echo -e "0) ${LBL}Exit${NC}\n"
 
 	read -p "Select menu option (#): " menu_Scan
 	if [[ "$menu_Scan" ]]; then
@@ -540,6 +596,8 @@ main_Menu(){
 		elif [[ $menu_Scan == 8 ]]; then
 			fs_Advanced
 		elif [[ $menu_Scan == 9 ]]; then
+			pcap_Search
+		elif [[ $menu_Scan == 0 ]]; then
 			echo -e "\n${YEL}Exiting${NC}\n"
 			exit
 		else

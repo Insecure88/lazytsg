@@ -9,11 +9,12 @@ chmod 700 lazy.sh
 
 chmod 700 survey.sh
 
-The Lazy TSG Script v1.1 by Mico
+The Lazy TSG Script v1.3 by Mico
 
-Usage: ./lazy (OPTIONS) [LOCID]
+Usage: ./lazy (OPTIONS) [LOCID or IP]
 
 Takes a locationID as an argument for launching a starbox survey
                 -h              Shows this help message
                 -t              Tunnels to a device behind the starbox | Usage: ./lazy -t [LOCID] [Remote IP] (Remote Port)
 		-i		Display IP address for Location | Usage: ./lazy -i [LOCID]
+		-d 		Download a file from a starbox | Usage: ./lazy -d [LOCID] [FILEPATH]"
