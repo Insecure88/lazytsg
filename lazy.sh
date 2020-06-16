@@ -24,9 +24,14 @@ main(){
 		echo -e "\t\t-t  \t\tTunnel to a device behind the starbox | Usage: ./lazy -t [LOCID] [Remote IP] (Remote Port)"
 		echo -e "\t\t-i  \t\tDisplay IP address for Location | Usage: ./lazy -i [LOCID]"
 		echo -e "\t\t-d  \t\tDownload a file from a starbox | Usage: ./lazy -d [LOCID] [FILEPATH]"
+		echo -e "\t\t-l  \t\tLookup extension information | Usage: ./lazy -l [LOCID] [EXT]"
+		echo -e "\t\t-le \t\tLookup GUE information | Usage: ./lazy -le [LOCID] [GUE]"
+		echo -e "\t\t-lm \t\tLookup MAC information | Usage: ./lazy -lm [LOCID] [MAC]"
 	}
+
 	pat="^[0-9]+$"
 	pat2="^([0-9]*\.){3}[0-9]*$"
+	pat3="(([a-zA-Z0-9]{2}){6})"
 
 	if [[ "$ARG1" ]]; then
 		if [[ "$ARG1" =~ $pat ]]; then
@@ -69,6 +74,42 @@ main(){
 				LOCID=$ARG2
 				IP=$(echo -e "select sip_ip from location_presence where locationid = '$LOCID' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star | egrep -o '^([0-9]{1,3}\.){3}[0-9]{1,3}')
 				echo $IP
+			else
+				echo -e "Missing or Invalid Location ID"
+			fi
+		elif [[ "$ARG1" == '-l' ]]; then
+			if [[ "$ARG2" =~ $pat ]]; then
+				LOCID=$ARG2
+				if [[ "$RIP" =~ $pat ]]; then
+					EXT=$RIP
+					echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where locationid = '$LOCID' AND extension = '$EXT' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
+				else
+					echo -e "Missing or Invalid Extension"
+				fi
+			else
+				echo -e "Missing or Invalid Location ID"
+			fi
+		elif [[ "$ARG1" == '-le' ]]; then
+			if [[ "$ARG2" =~ $pat ]]; then
+				LOCID=$ARG2
+				if [[ "$RIP" =~ $pat ]]; then
+					GUE=$RIP
+					echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where locationid = '$LOCID' AND id = '$GUE' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
+				else
+					echo -e "Missing or Invalid GUE"
+				fi
+			else
+				echo -e "Missing or Invalid Location ID"
+			fi
+		elif [[ "$ARG1" == '-lm' ]]; then
+			if [[ "$ARG2" =~ $pat ]]; then
+				LOCID=$ARG2
+				if [[ "$RIP" =~ $pat3 ]]; then
+					MAC=$RIP
+					echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where locationid = '$LOCID' AND mac = '$MAC' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
+				else
+					echo -e "Missing or Invalid MAC Address"
+				fi
 			else
 				echo -e "Missing or Invalid Location ID"
 			fi
