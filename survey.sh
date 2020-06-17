@@ -17,6 +17,7 @@ NC='\033[0m' # No Color
 export SHELL=/bin/bash
 export TERM=xterm
 tunLink=$1
+imgCount=$(egrep -c astlinux /etc/astlinux-release)
 
 banner() {
 	# Print The Banner
@@ -132,7 +133,6 @@ hmesg() {
 
 check_Orion() {
 	# Checks the orion connection
-	imgCount=$(egrep -c astlinux /etc/astlinux-release)
 	if [ $imgCount -eq 1 2>/dev/null ]; then 
 		local connection=$(netstat -nat 2>/dev/null | grep 5038 | grep 199.15.181 | egrep -iom 1 'ESTABLISHED'); 
 	else 
@@ -149,16 +149,30 @@ check_Orion() {
 phone_Reg(){
 	# Shows phone registrations using preboot
 	extNum="^[0-9]+$"
-	if  [[ $ext =~ $extNum ]] ; then
-		echo -e "${YEL}Grepping registrations for ext [$ext]\n${NC}"
-		/mnt/kd/provbin/./preboot-fs list | grep $ext
-		echo -e "\n"
-	elif [[ $ext == 'all' ]]; then
-		echo -e "${YEL}Showing all phone registrations\n${NC}"
-		/mnt/kd/provbin/./preboot-fs list
-		echo -e "\n"
+	if [ $imgCount -eq 1 2>/dev/null ]; then
+		if  [[ $ext =~ $extNum ]] ; then
+			echo -e "${YEL}Grepping registrations for ext [$ext]\n${NC}"
+			/mnt/kd/provbin/./preboot list | grep $ext
+			echo -e "\n"
+		elif [[ $ext == 'all' ]]; then
+			echo -e "${YEL}Showing all phone registrations\n${NC}"
+			/mnt/kd/provbin/./preboot list
+			echo -e "\n"
+		else
+			echo -e "${YEL}Skipping phone registrations....\n${NC}"
+		fi
 	else
-		echo -e "${YEL}Skipping phone registrations....\n${NC}"
+		if  [[ $ext =~ $extNum ]] ; then
+			echo -e "${YEL}Grepping registrations for ext [$ext]\n${NC}"
+			/mnt/kd/provbin/./preboot-fs list | grep $ext
+			echo -e "\n"
+		elif [[ $ext == 'all' ]]; then
+			echo -e "${YEL}Showing all phone registrations\n${NC}"
+			/mnt/kd/provbin/./preboot-fs list
+			echo -e "\n"
+		else
+			echo -e "${YEL}Skipping phone registrations....\n${NC}"
+		fi
 	fi
 }
 
@@ -292,14 +306,14 @@ net_Dump(){
 	# Dumps network information into a file
 	if [ $imgCount -eq 1 2>/dev/null ]; then 
 		echo -e "\nInterfaces\n" > /tmp/netinfo.txt
-		ifconfig > /tmp/netinfo.txt
-		echo -e "\nConfig\n" > /tmp/netinfo.txt
+		ifconfig >> /tmp/netinfo.txt
+		echo -e "\nConfig\n" >> /tmp/netinfo.txt
 		cat /mnt/kd/rc.conf.d/* >> /tmp/netinfo.txt
-		echo -e "\nFirewall Rules\n" > /tmp/netinfo.txt
+		echo -e "\nFirewall Rules\n" >> /tmp/netinfo.txt
 		iptables -L >> /tmp/netinfo.txt
-		echo -e "\nNetwork Routes\n" > /tmp/netinfo.txt
+		echo -e "\nNetwork Routes\n" >> /tmp/netinfo.txt
 		route -n >> /tmp/netinfo.txt
-		echo -e "\nArp Table\n" > /tmp/netinfo.txt
+		echo -e "\nArp Table\n" >> /tmp/netinfo.txt
 		arp -n >> /tmp/netinfo.txt
 	else
 		echo -e "\nInterfaces\n" > /tmp/netinfo.txt
@@ -533,8 +547,12 @@ custom_Scan() {
 
 	read -p "Check all dmesg errors? y/n " dmesgCheck
 	if [ $dmesgCheck == "y" ]; then
+		if [ $imgCount -eq 1 2>/dev/null ]; then 
+			dmesg
+		else
 		hmesg
 		echo -e "End Of LOG\n"
+		fi
 	else
 		echo -e "${YEL}Skipping dmesg Logs....\n${NC}"
 	fi
