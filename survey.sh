@@ -18,6 +18,7 @@ export SHELL=/bin/bash
 export TERM=xterm
 tunLink=$1
 imgCount=$(egrep -c astlinux /etc/astlinux-release)
+alias ls='ls --color'
 
 banner() {
 	# Print The Banner
@@ -449,6 +450,38 @@ pcap_Search(){
 	done
 }
 
+pcapper(){
+	echo -e "${LBL}1) Small${NC}"
+	echo -e "${LBL}2) Medium${NC}"
+	echo -e "${LBL}3) Large${NC}"
+	echo -e "\n"
+	read -p "Choose your pcap size: " size
+	read -p "Enter the pcap directory (ex: /mnt/kd/ssd): " tstemp
+	read -p "Enter pcap filters (blank = unfiltered): " filter
+	cd $tstemp; mkdir tstemp
+	local pat="/$"
+	for (( i=0; i <= 2; i=i+1 )); do
+		mkdir tstemp/eth$i
+		file=$(hostname)"-E$i.dump."
+		if [[ "$tstemp" =~ $pat ]]; then
+			dir=$tstemp"tstemp/eth$i/$file"
+		else
+			dir=$tstemp/tstemp/eth$i/$file
+		fi
+		if [[ $size == 1 ]]; then
+			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C10 -W100 -w $dir $filter
+		elif [[ $size == 2 ]]; then
+			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C10 -W150 -w $dir $filter
+		elif [[ $size == 3 ]]; then
+			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C20 -W200 -w $dir $filter
+		else
+			echo -e "${YEL}Invalid pcap size or tcpdump error${NC}"
+		fi
+	done
+	echo -e "${YEL}Packet Capture Process Started${NC}"
+	echo -e "${YEL}Pcaps are saved in $tstemp/tstemp${NC}"
+}
+
 light_Scan(){
 	echo "Doing Light Scan"
 }
@@ -577,16 +610,17 @@ main_Menu(){
 	echo -e "*-----------------------------*${NC}"
 	echo -e "${LBL}  What would you like to do?${NC}"
 	echo -e "*-----------------------------*${NC}"
-	echo -e "1) ${LBL}Light Scan (Coming Soon)${NC}"
-	echo -e "2) ${LBL}Intensive Scan (Coming Soon)${NC}"
-	echo -e "3) ${LBL}Network Scan${NC}"
-	echo -e "4) ${LBL}Custom Scan (Default)${NC}"
-	echo -e "5) ${LBL}CLI${NC}"
-	echo -e "6) ${LBL}Dump Network Info${NC}"
-	echo -e "7) ${LBL}Nmap VLAN 41${NC}"
-	echo -e "8) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
-	echo -e "9) ${LBL}Pcap Search${NC}"
-	echo -e "0) ${LBL}Exit${NC}\n"
+	echo -e " 1) ${LBL}Light Scan (Coming Soon)${NC}"
+	echo -e " 2) ${LBL}Intensive Scan (Coming Soon)${NC}"
+	echo -e " 3) ${LBL}Network Scan${NC}"
+	echo -e " 4) ${LBL}Custom Scan (Default)${NC}"
+	echo -e " 5) ${LBL}CLI${NC}"
+	echo -e " 6) ${LBL}Dump Network Info${NC}"
+	echo -e " 7) ${LBL}Nmap VLAN 41${NC}"
+	echo -e " 8) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
+	echo -e " 9) ${LBL}Pcap Search${NC}"
+	echo -e "10) ${LBL}Packet Capture${NC}"
+	echo -e " 0) ${LBL}Exit${NC}\n"
 
 	read -p "Select menu option (#): " menu_Scan
 	if [[ "$menu_Scan" ]]; then
@@ -615,6 +649,8 @@ main_Menu(){
 			fs_Advanced
 		elif [[ $menu_Scan == 9 ]]; then
 			pcap_Search
+		elif [[ $menu_Scan == 10 ]]; then
+			pcapper
 		elif [[ $menu_Scan == 0 ]]; then
 			echo -e "\n${YEL}Exiting${NC}\n"
 			exit

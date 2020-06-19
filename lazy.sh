@@ -20,7 +20,7 @@ main(){
 
 		echo -e "\nTakes a locationID as an argument for launching a starbox survey"
 
-		echo -e "\t\t-h  \t\tShows this help message"
+		echo -e "\t\t-h  \t\tShows this help message\n"
 		echo -e "\t\t-t  \t\tTunnel to a device behind the starbox | Usage: ./lazy -t [LOCID] [Remote IP] (Remote Port)"
 		echo -e "\t\t-i  \t\tDisplay IP address for Location | Usage: ./lazy -i [LOCID]"
 		echo -e "\t\t-d  \t\tDownload a file from a starbox | Usage: ./lazy -d [LOCID] [FILEPATH]"
