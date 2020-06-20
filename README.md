@@ -27,6 +27,6 @@ Takes a locationID as an argument for launching a starbox survey
 
                 -l              Lookup extension information | Usage: ./lazy -l [LOCID] [EXT]
 
-                -le             Lookup GUE information | Usage: ./lazy -le [LOCID] [GUE]
+                -le             Lookup GUE information | Usage: ./lazy -le [GUE]
 
-                -lm             Lookup MAC information | Usage: ./lazy -lm [LOCID] [MAC]
+                -lm             Lookup MAC information | Usage: ./lazy -lm [MAC]
