@@ -91,27 +91,17 @@ main(){
 			fi
 		elif [[ "$ARG1" == '-le' ]]; then
 			if [[ "$ARG2" =~ $pat ]]; then
-				LOCID=$ARG2
-				if [[ "$RIP" =~ $pat ]]; then
-					GUE=$RIP
-					echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where id = '$GUE' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
-				else
-					echo -e "Missing or Invalid GUE"
-				fi
+				GUE=$ARG2
+				echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where id = '$GUE' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
 			else
-				echo -e "Missing or Invalid Location ID"
+				echo -e "Missing or Invalid GUE"
 			fi
 		elif [[ "$ARG1" == '-lm' ]]; then
-			if [[ "$ARG2" =~ $pat ]]; then
-				LOCID=$ARG2
-				if [[ "$RIP" =~ $pat3 ]]; then
-					MAC=$RIP
-					echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where mac = '$MAC' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
-				else
-					echo -e "Missing or Invalid MAC Address"
-				fi
+			if [[ "$ARG2" =~ $pat3 ]]; then
+				MAC=$ARG2
+				echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where mac = '$MAC' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
 			else
-				echo -e "Missing or Invalid Location ID"
+				echo -e "Missing or Invalid MAC Address"
 			fi
 		elif [[ "$ARG1" == '-d' ]]; then
 			if [[ "$ARG2" =~ $pat ]]; then
