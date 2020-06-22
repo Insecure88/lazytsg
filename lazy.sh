@@ -82,7 +82,8 @@ main(){
 				LOCID=$ARG2
 				if [[ "$RIP" =~ $pat ]]; then
 					EXT=$RIP
-					echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where locationid = '$LOCID' AND extension = '$EXT' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
+					PID=$(echo -e "select id from extensions where locationid = '$LOCID' AND extension = '$EXT' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star | egrep -o '[0-9]+')
+					echo -e "select e.id,e.callerid as name,e.extension,e.pin,e.mac,e.status,e.remote,z.title as type,z.firmware_version,e.extension_uuid from extensions e inner join z_phone_version z where e.id = '$PID' and z.id = e.phone_version_id limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
 				else
 					echo -e "Missing or Invalid Extension"
 				fi
@@ -92,14 +93,14 @@ main(){
 		elif [[ "$ARG1" == '-le' ]]; then
 			if [[ "$ARG2" =~ $pat ]]; then
 				GUE=$ARG2
-				echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where id = '$GUE' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
+				echo -e "select e.id,e.callerid as name,e.extension,e.pin,e.mac,e.status,e.remote,z.title as type,z.firmware_version,e.extension_uuid from extensions e inner join z_phone_version z where e.id = '$GUE' and z.id = e.phone_version_id limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
 			else
 				echo -e "Missing or Invalid GUE"
 			fi
 		elif [[ "$ARG1" == '-lm' ]]; then
 			if [[ "$ARG2" =~ $pat3 ]]; then
 				MAC=$ARG2
-				echo -e "select id,callerid,extension,pin,mac,status,remote,remote_server,extension_uuid from extensions where mac = '$MAC' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
+				echo -e "select e.id,e.callerid as name,e.extension,e.pin,e.mac,e.status,e.remote,z.title as type,z.firmware_version,e.extension_uuid from extensions e inner join z_phone_version z where e.mac = '$MAC' and z.id = e.phone_version_id limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star --table
 			else
 				echo -e "Missing or Invalid MAC Address"
 			fi
