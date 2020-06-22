@@ -271,7 +271,7 @@ get_TShape(){
 get_Calls(){
 	local pat="^[0-9]$"
 	if [ $imgCount -eq 1 2>/dev/null ]; then 
-		local calls=$(asterisk -rx 'core show channels' | egrep 'active calls'| egrep -io '[0-9]')
+		local calls=$(asterisk -rx 'core show channels' | egrep 'active call'| egrep -io '[0-9]')
 		echo -e "Active Calls: ${RED}$calls${NC}"
 	else
 		local calls=$(fs_cli -x 'show calls' | egrep 'total'| egrep -io '[0-9]' )
