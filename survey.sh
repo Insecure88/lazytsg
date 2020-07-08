@@ -3,7 +3,6 @@
 # Author: Mico
 # # Lazy TSGv1.3 survey
 # This is a shell script to automate some of my common starbox tasks
-# The code is sloppy and thrown together for now since I just started using this language yesterday.
 
 # Colors
 RED='\033[1;31m'
@@ -33,19 +32,22 @@ banner() {
 banner
 
 get_IP() {
-	# Return Interface IP addresses and Check for Bridged Mode
+	# Return Interface IP addresses and Check for Bridged/VPN Mode
+
+	pppoeIP=$(ifconfig pppoe-wan 2>/dev/null | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 	brIP=$(ifconfig br-wan 2>/dev/null | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+	WANIP=$(ifconfig eth0 2>/dev/null | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 	if [ "$brIP" ]; then
-		echo -e "The WAN IP Address is: ${RED}$brIP${NC}"
-	else
-		echo -e "The Starbox is ${RED}Not Bridged${NC}"
-	fi
-	
-	WANIP=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
-	if [ "$WANIP" ]; then
-		echo -e "The WAN IP Address is: ${RED}$WANIP${NC}"
-	else
 		echo -e "The Starbox is ${RED}Bridged${NC}"
+		echo -e "The WAN IP Address is: ${RED}$brIP${NC}"
+	elif [[ "$WANIP" ]]; then
+		echo -e "The Starbox is ${RED}Not Bridged${NC}"
+		echo -e "The WAN IP Address is: ${RED}$WANIP${NC}"
+	elif [[ "$pppoeIP" ]]; then
+		echo -e "The Starbox is ${RED}Not Bridged${NC}"
+		echo -e "The WAN IP Address is: ${RED}$pppoeIP${NC}"
+	else
+		echo -e "Error: Could not return WAN IP address"
 	fi
 
 	LAN2IP=$(ifconfig eth1 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
@@ -180,10 +182,13 @@ phone_Reg(){
 subnet_Converter(){
 	if [[ "$brIP" ]]; then
 		subnet=$(ifconfig br-wan | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}') # Get subnet
-		octets=$(ifconfig br-wan | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}' | egrep -o '[0-9]{1,3}') # Get octets
+		octets=$(ifconfig br-wan | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}' | tr '.' '\n') # Get octets
+	elif [[ "$pppoeIP" ]]; then
+		subnet=$(ifconfig pppoe-wan | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}') # Get subnet
+		octets=$(ifconfig pppoe-wan | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}' | tr '.' '\n') # Get octets
 	else
 		subnet=$(ifconfig eth0 | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}') # Get subnet
-		octets=$(ifconfig eth0 | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}' | egrep -o '[0-9]{1,3}') # Get octets
+		octets=$(ifconfig eth0 | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}' | tr '.' '\n') # Get octets
 	fi
 	
 	local n=$(echo "obase=2;$octets" | bc | awk '{s+=$1} END {print s}') # Convert to bits and add octets
@@ -202,14 +207,26 @@ subnet_Converter(){
 }
 
 get_NetIP(){
-	if [[ "$brIP" ]]; then
-		IFS=. read -r i1 i2 i3 i4 <<< $brIP
-		IFS=. read -r m1 m2 m3 m4 <<< $subnet
-		NETIP=$(printf "%d.%d.%d.%d\n" "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))")
+	if [ $imgCount -eq 1 2>/dev/null ]; then
+		if [[ "$brIP" ]]; then
+			NETIP=$(route -n | egrep $subnet | egrep -o '([0-9]*\.){3}[0-9]')
+		elif [[ "$pppoeIP" ]]; then
+			NETIP=$(route -n | egrep $subnet | egrep -o '([0-9]*\.){3}[0-9]')
+		else
+			NETIP=$(route -n | egrep $subnet | egrep -o '([0-9]*\.){3}[0-9]')
+		fi
 	else
-		IFS=. read -r i1 i2 i3 i4 <<< $WANIP
-		IFS=. read -r m1 m2 m3 m4 <<< $subnet
-		NETIP=$(printf "%d.%d.%d.%d\n" "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))")
+		if [[ "$brIP" ]]; then
+			IFS=. read -r i1 i2 i3 i4 <<< $brIP
+			IFS=. read -r m1 m2 m3 m4 <<< $subnet
+			NETIP=$(printf "%d.%d.%d.%d\n" "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))")
+		elif [[ "$pppoeIP" ]]; then
+			NETIP=$(route -n | egrep $subnet | egrep -io '^([0-9]*\.){3}[0-9]+')
+		else
+			IFS=. read -r i1 i2 i3 i4 <<< $WANIP
+			IFS=. read -r m1 m2 m3 m4 <<< $subnet
+			NETIP=$(printf "%d.%d.%d.%d\n" "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))")
+		fi
 	fi
 }
 
@@ -280,13 +297,13 @@ get_Calls(){
 }
 
 check_Parallel(){
-	# Check is starbox is running in parallel. Only working on 2.5
+	# Check is starbox is running in parallel.
 	subnet_Converter
 	get_NetIP
 	echo -e "${YEL} Starting Nmap scan on the primary subnet...${NC}\n"
 	nmap -sP $NETIP/$sub > /tmp/nmap.txt
 	nmap=$(cat /tmp/nmap.txt)
-	local hosts=$(cat /tmp/nmap.txt | egrep -i 'hosts up' | egrep -io '([0-9]+\s)hosts up' | egrep -o '[0-9]+')
+	local hosts=$(cat /tmp/nmap.txt | egrep -i 'scanned in' | egrep -io '([0-9]+) host(s?) up' | egrep -o '[0-9]+')
 	if [[ "$brIP" ]]; then
 		local bridged=1
 	else
@@ -367,6 +384,7 @@ fs_Super(){
 	unset NTA_DEBUG
 	unset TPORT_DEBUG
 	unset TPORT_LOG
+	echo -e "${YEL}\nProcess Complete. Restart FreeSWITCH again to disable.${NC}"
 }
 
 fs_SIP(){
@@ -375,6 +393,7 @@ fs_SIP(){
 	export TPORT_LOG=1
 	fs_Restart
 	unset TPORT_LOG
+	echo -e "${YEL}\nProcess Complete. Restart FreeSWITCH again to disable.${NC}"
 }
 
 fs_Advanced(){
@@ -396,7 +415,7 @@ fs_Advanced(){
 			fi
 			echo -e "${YEL}Backing up old logs....${NC}"
 			mkdir ~/freeswitch_old 2>/dev/null
-			cp /tmp/freeswitch.log.* ~/freeswitch_old
+			cp /tmp/freeswitch.log* ~/freeswitch_old
 			echo -e "${YEL}Starting persistent logging....${NC}"
 			nohup tail /tmp/freeswitch.log -f >> ~/freeswitch.log &
 			echo -e "${YEL}Process Complete. Now logging in ~ directory${NC}"
@@ -543,7 +562,7 @@ custom_Scan() {
 	fi
 	
 
-	read -p "Check if the starbox is running in parallel? (1.0 unsupported) y/n: " checkPara
+	read -p "Check if the starbox is running in parallel? y/n: " checkPara
 	if [[ $checkPara == "y" ]]; then
 		check_Parallel
 	else
