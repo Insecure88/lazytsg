@@ -419,6 +419,7 @@ fs_Advanced(){
 			echo -e "${YEL}Starting persistent logging....${NC}"
 			nohup tail /tmp/freeswitch.log -f >> ~/freeswitch.log &
 			echo -e "${YEL}Process Complete. Now logging in ~ directory${NC}"
+			echo -e "${YEL}Remember to run killall tail when done logging!${NC}"
 		elif [[ "$option" == 2 ]]; then
 			fs_SIP
 		elif [[ "$option" == 3 ]]; then

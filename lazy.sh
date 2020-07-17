@@ -19,13 +19,14 @@ main(){
 
 		echo -e "\nTakes a locationID as an argument for launching a starbox survey"
 
-		ech	o -e "\t\t-h  \t\tShows this help message"
+		echo -e "\t\t-h  \t\tShows this help message"
 		echo -e "\t\t-t  \t\tTunnel to a device behind the starbox | Usage: ./lazy -t [LOCID] [Remote IP] (Remote Port)"
 		echo -e "\t\t-i  \t\tDisplay IP address for Location | Usage: ./lazy -i [LOCID]"
 		echo -e "\t\t-d  \t\tDownload a file from a starbox | Usage: ./lazy -d [LOCID] [FILEPATH]"
 		echo -e "\t\t-l  \t\tLookup extension information | Usage: ./lazy -l [LOCID] [EXT]"
 		echo -e "\t\t-le \t\tLookup GUE information | Usage: ./lazy -le [LOCID] [GUE]"
 		echo -e "\t\t-lm \t\tLookup MAC information | Usage: ./lazy -lm [LOCID] [MAC]"
+		echo -e "\t\t--update \t\tUpdate Lazy TSG"
 	}
 
 	pat="^[0-9]+$"
@@ -111,6 +112,12 @@ main(){
 			else
 				echo -e "Missing or Invalid Location ID"
 			fi
+		elif [[ "$ARG1" == '--update' ]]; then
+			echo -e "Updating lazytsg..."
+			git clone https://github.com/Insecure88/lazytsg.git 1>/dev/null
+			cp lazytsg/* .
+			rm lazytsg -rf
+			echo -e "Update Complete"
 		elif [[ "$ARG1" == '-h' ]]; then
 			help
 		else
