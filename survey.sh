@@ -15,8 +15,7 @@ NC='\033[0m' # No Color
 # Setting environment variables and startup
 export SHELL=/bin/bash
 export TERM=xterm
-tunLink=
-$1
+tunLink=$1
 imgCount=$(egrep -c astlinux /etc/astlinux-release)
 alias ls='ls --color'
 rm /tmp/survey.sh 
