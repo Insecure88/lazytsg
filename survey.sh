@@ -12,12 +12,14 @@ YEL='\033[0;33m'
 LBL='\033[1;34m'
 NC='\033[0m' # No Color
 
-# Setting environment variables
+# Setting environment variables and startup
 export SHELL=/bin/bash
 export TERM=xterm
-tunLink=$1
+tunLink=
+$1
 imgCount=$(egrep -c astlinux /etc/astlinux-release)
 alias ls='ls --color'
+rm /tmp/survey.sh 
 
 banner() {
 	# Print The Banner

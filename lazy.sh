@@ -26,7 +26,7 @@ main(){
 		echo -e "\t\t-l  \t\tLookup extension information | Usage: ./lazy -l [LOCID] [EXT]"
 		echo -e "\t\t-le \t\tLookup GUE information | Usage: ./lazy -le [LOCID] [GUE]"
 		echo -e "\t\t-lm \t\tLookup MAC information | Usage: ./lazy -lm [LOCID] [MAC]"
-		echo -e "\t\t--update \t\tUpdate Lazy TSG"
+		echo -e "\t\t--update \tUpdate Lazy TSG"
 	}
 
 	pat="^[0-9]+$"
