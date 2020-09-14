@@ -491,6 +491,11 @@ pcapper(){
 	read -p "Choose your pcap size: " size
 	read -p "Enter the pcap directory (ex: /mnt/kd/ssd): " tstemp
 	read -p "Enter pcap filters (blank = unfiltered): " filter
+	if [[ "$size" ]]; then
+		continue
+	else
+		return 0
+	fi
 	cd $tstemp; mkdir tstemp
 	local pat="/$"
 	for (( i=0; i <= 2; i=i+1 )); do
@@ -544,7 +549,7 @@ pcom_UI(){
 }
 
 misc(){
-	echo -e "\n\t${GRE} Miscellanious Options${NC}"
+	echo -e "\n${GRE}   Miscellanious Options${NC}"
 	echo -e "#-----------------------------#"
 	echo -e "1)${LBL} Scan Chattrs${NC}"
 	echo -e "2)${LBL} Enable Polycom WebUIs${NC}"
