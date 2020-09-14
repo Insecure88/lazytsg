@@ -527,6 +527,44 @@ scan_Chattr(){
 	done
 }
 
+pcom_UI(){
+	# This enables the web UI on all polycom phones 
+
+	# Set the variables
+	local files=$(ls phone*.cfg | grep '.')
+	local string='HTTPD httpd.enabled="0"'
+	local string2='HTTPD httpd.enabled="1"'
+
+	# Replace the strings
+	echo "Enabling Web UI in $files"
+	sed -i "s/$string/$string2/g" $files
+
+	echo -e "Complete"
+}
+
+misc(){
+	echo -e "\n${GRE} Miscellanious Options${NC}"
+	echo -e "#-----------------------------#"
+	echo -e "1)${LBL} Scan Chattrs${NC}"
+	echo -e "2)${LBL} Enable Polycom WebUIs${NC}"
+	echo -e "3)${LBL} Dump Network Info${NC}"
+	echo -e "\n"
+	read -p "Select menu option (#): " option
+	if [[ "$option" ]]; then
+		if [[ "$option" == 1 ]]; then
+			scan_Chattr
+		elif [[ "$option" == 2 ]]; then
+			pcom_UI
+		elif [[ "$option" == 3 ]]; then
+			net_Dump
+		else
+			echo -e "${YEL}You entered an invalid option${NC}"
+		fi
+	else
+		echo -e "${YEL}No menu option selected${NC}"
+	fi
+}
+
 light_Scan(){
 	echo "Doing Light Scan"
 }
@@ -666,7 +704,7 @@ main_Menu(){
 	echo -e " 8) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
 	echo -e " 9) ${LBL}Pcap Search${NC}"
 	echo -e "10) ${LBL}Packet Capture${NC}"
-	echo -e "11) ${LBL}Scan Chattrs${NC}"
+	echo -e "11) ${LBL}Misc${NC}"
 	echo -e " 0) ${LBL}Exit${NC}\n"
 
 	read -p "Select menu option (#): " menu_Scan
@@ -699,7 +737,7 @@ main_Menu(){
 		elif [[ $menu_Scan == 10 ]]; then
 			pcapper
 		elif [[ $menu_Scan == 11 ]]; then
-			scan_Chattr
+			misc
 		elif [[ $menu_Scan == 0 ]]; then
 			echo -e "\n${YEL}Exiting${NC}\n"
 			exit
