@@ -514,6 +514,19 @@ pcapper(){
 	echo -e "${YEL}Pcaps are saved in $tstemp/tstemp${NC}"
 }
 
+scan_Chattr(){
+	# This scans the entire starbox for any chattr'd files. 
+	find / 2>/dev/null | while read file; do
+        if [[ -f $file ]]; then
+                if [[ -w $file ]]; then
+                        echo "true" 1>/dev/null
+                else
+                        echo -e "Chattr Found! ${RED}$file${NC}"
+                fi
+        fi
+	done
+}
+
 light_Scan(){
 	echo "Doing Light Scan"
 }
@@ -653,6 +666,7 @@ main_Menu(){
 	echo -e " 8) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
 	echo -e " 9) ${LBL}Pcap Search${NC}"
 	echo -e "10) ${LBL}Packet Capture${NC}"
+	echo -e "11) ${LBL}Scan Chattrs${NC}"
 	echo -e " 0) ${LBL}Exit${NC}\n"
 
 	read -p "Select menu option (#): " menu_Scan
@@ -684,6 +698,8 @@ main_Menu(){
 			pcap_Search
 		elif [[ $menu_Scan == 10 ]]; then
 			pcapper
+		elif [[ $menu_Scan == 11 ]]; then
+			scan_Chattr
 		elif [[ $menu_Scan == 0 ]]; then
 			echo -e "\n${YEL}Exiting${NC}\n"
 			exit
