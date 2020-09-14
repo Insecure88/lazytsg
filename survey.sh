@@ -334,6 +334,7 @@ check_Parallel(){
 
 net_Dump(){
 	# Dumps network information into a file
+	echo -e "\n${YEL}Dumping Network Info /tmp/netinfo.txt${NC}\n"
 	if [ $imgCount -eq 1 2>/dev/null ]; then 
 		echo -e "\nInterfaces\n" > /tmp/netinfo.txt
 		ifconfig >> /tmp/netinfo.txt
@@ -531,7 +532,7 @@ pcom_UI(){
 	# This enables the web UI on all polycom phones 
 
 	# Set the variables
-	local files=$(ls phone*.cfg | grep '.')
+	local files=$(ls /mnt/kd/tftpboot/phone*.cfg | grep '.')
 	local string='HTTPD httpd.enabled="0"'
 	local string2='HTTPD httpd.enabled="1"'
 
@@ -543,7 +544,7 @@ pcom_UI(){
 }
 
 misc(){
-	echo -e "\n${GRE} Miscellanious Options${NC}"
+	echo -e "\n\t${GRE} Miscellanious Options${NC}"
 	echo -e "#-----------------------------#"
 	echo -e "1)${LBL} Scan Chattrs${NC}"
 	echo -e "2)${LBL} Enable Polycom WebUIs${NC}"
@@ -699,12 +700,11 @@ main_Menu(){
 	echo -e " 3) ${LBL}Network Scan${NC}"
 	echo -e " 4) ${LBL}Custom Scan (Default)${NC}"
 	echo -e " 5) ${LBL}CLI${NC}"
-	echo -e " 6) ${LBL}Dump Network Info${NC}"
-	echo -e " 7) ${LBL}Nmap VLAN 41${NC}"
-	echo -e " 8) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
-	echo -e " 9) ${LBL}Pcap Search${NC}"
-	echo -e "10) ${LBL}Packet Capture${NC}"
-	echo -e "11) ${LBL}Misc${NC}"
+	echo -e " 6) ${LBL}Nmap VLAN 41${NC}"
+	echo -e " 7) ${LBL}Enable Advanced FreeSWITCH Logs${NC}"
+	echo -e " 8) ${LBL}Pcap Search${NC}"
+	echo -e " 9) ${LBL}Packet Capture${NC}"
+	echo -e "10) ${LBL}Misc${NC}"
 	echo -e " 0) ${LBL}Exit${NC}\n"
 
 	read -p "Select menu option (#): " menu_Scan
@@ -725,18 +725,15 @@ main_Menu(){
 			PS1='\[\033[00;32m\][lazy]\[\033[01;31m\]\h \[\033[01;36m\]\W\ \$\[\033[00m\] ' bash
 			main_Menu
 		elif [[ $menu_Scan == 6 ]]; then
-			echo -e "\n${YEL}Dumping Network Info /tmp/netinfo.txt${NC}\n"
-			net_Dump
-		elif [[ $menu_Scan == 7 ]]; then
 			echo -e "\n${YEL}Scanning VLAN 41${NC}\n"
 			nmap -sP 10.41.22.0/23
-		elif [[ $menu_Scan == 8 ]]; then
+		elif [[ $menu_Scan == 7 ]]; then
 			fs_Advanced
-		elif [[ $menu_Scan == 9 ]]; then
+		elif [[ $menu_Scan == 8 ]]; then
 			pcap_Search
-		elif [[ $menu_Scan == 10 ]]; then
+		elif [[ $menu_Scan == 9 ]]; then
 			pcapper
-		elif [[ $menu_Scan == 11 ]]; then
+		elif [[ $menu_Scan == 10 ]]; then
 			misc
 		elif [[ $menu_Scan == 0 ]]; then
 			echo -e "\n${YEL}Exiting${NC}\n"
