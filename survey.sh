@@ -493,7 +493,7 @@ pcapper(){
 	read -p "Enter the pcap directory (ex: /mnt/kd/ssd): " tstemp
 	read -p "Enter pcap filters (blank = unfiltered): " filter
 	if [[ "$size" ]]; then
-		continue
+		echo "$size"
 	else
 		echo -e "${YEL}No pcap size selected${NC}"
 		return 0
