@@ -104,7 +104,7 @@ ping_Test() {
 	while [[ "$pid" ]]; do
 		while [ "$pid" ]; do
 			echo -e "${YEL}Starting ping test to SIP Server....${NC}"
-			ping 199.15.180.2 -s 300 -w 20
+			ping 199.15.180.2 -s 300 -w 25
 			pid=$(pidof wget)
 			echo -e "\n${YEL}Still Testing${NC}\n"
 		done
@@ -484,9 +484,10 @@ pcap_Search(){
 }
 
 pcapper(){
-	echo -e "${LBL}1) Small${NC}"
-	echo -e "${LBL}2) Medium${NC}"
-	echo -e "${LBL}3) Large${NC}"
+	echo -e "${LBL}1) Tiny${NC}"
+	echo -e "${LBL}2) Small${NC}"
+	echo -e "${LBL}3) Medium${NC}"
+	echo -e "${LBL}4) Large${NC}"
 	echo -e "\n"
 	read -p "Choose your pcap size: " size
 	read -p "Enter the pcap directory (ex: /mnt/kd/ssd): " tstemp
@@ -494,6 +495,7 @@ pcapper(){
 	if [[ "$size" ]]; then
 		continue
 	else
+		echo -e "${YEL}No pcap size selected${NC}"
 		return 0
 	fi
 	cd $tstemp; mkdir tstemp
@@ -507,10 +509,12 @@ pcapper(){
 			dir=$tstemp/tstemp/eth$i/$file
 		fi
 		if [[ $size == 1 ]]; then
-			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C10 -W100 -w $dir $filter
+			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C10 -W50 -w $dir $filter
 		elif [[ $size == 2 ]]; then
-			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C10 -W150 -w $dir $filter
+			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C10 -W100 -w $dir $filter
 		elif [[ $size == 3 ]]; then
+			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C10 -W150 -w $dir $filter
+		elif [[ $size == 4 ]]; then
 			screen -d -m tcpdump -i eth$i -s0 -vv -n -Z root -C20 -W200 -w $dir $filter
 		else
 			echo -e "${YEL}Invalid pcap size or tcpdump error${NC}"
