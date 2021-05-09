@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Author: Mico
-# Lazy TSGv1.3
+# Lazy TSGv1.4
 # This is a shell script to automate some of my common starbox tasks
 
 # Settings Variables
@@ -38,12 +38,12 @@ main(){
 			LOCID=$ARG1
 			IP=$(echo -e "select sip_ip from location_presence where locationid = '$LOCID' limit 1;" | mysql --defaults-extra-file=/home/tstool/dbconf.dfw/dbread --database star2star | egrep -o '^([0-9]{1,3}\.){3}[0-9]{1,3}')
 			echo "Starting survey for starbox_$LOCID"
-			scp -o ConnectTimeout=10 survey.sh $IP:/tmp/.
+			scp -o ConnectTimeout=10 survey.sh $IP:/tmp/. 1>/dev/null
 			ssh  -t -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@$IP /tmp/survey.sh
 		elif [[ "$ARG1" =~ $pat2 ]]; then
 			IP=$ARG1
 			echo "Starting survey for starbox_$LOCID"
-			scp -o ConnectTimeout=10 survey.sh $IP:/tmp/.
+			scp -o ConnectTimeout=10 survey.sh $IP:/tmp/. 1>/dev/null
 			ssh  -t -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@$IP /tmp/survey.sh
 		elif [[ "$ARG1" == '-t' ]]; then
 			if [[ "$ARG2" =~ $pat ]]; then
@@ -59,7 +59,7 @@ main(){
     		
     		if [[ "$RIP" ]]; then
     			if [[ "$RIP" =~ $pat2 ]]; then
-    				scp -o ConnectTimeout=10 survey.sh $IP:/tmp/.
+    				scp -o ConnectTimeout=10 survey.sh $IP:/tmp/. 1>/dev/null
     				link="http://noc1-dfw.star2star.com:$LPORT"
     				ssh -p22  -q -g -t -L $LPORT:$RIP:$RPORT root@$IP /tmp/survey.sh $link
 				else
