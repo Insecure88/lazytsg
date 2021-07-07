@@ -18,7 +18,7 @@ export TERM=xterm
 tunLink=$1
 imgCount=$(egrep -c astlinux /etc/astlinux-release)
 alias ls='ls --color'
-rm /tmp/survey.sh 
+rm /tmp/survey.sh
 
 banner() {
 	# Print The Banner
@@ -55,19 +55,19 @@ get_IP() {
 	if [ "$LAN2IP" ]; then
 		echo -e "The LAN2 IP Address is: ${RED}$LAN2IP${NC}"
 	fi
-	
+
 	LAN3IP=$(ifconfig eth2 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 	echo -e "The LAN3 IP Address is: ${RED}$LAN3IP${NC}"
-	
+
 	VLAN41IP=$(ifconfig eth2.41 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 	echo -e "The VLAN41 IP Address is: ${RED}$VLAN41IP${NC}"
-	
+
 	FAILIP=$(ifconfig eth2.42 2>/dev/null | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 	if [ "$FAILIP" ]; then
 		echo -e "The Failover IP Address is: ${RED}$FAILIP${NC}"
 	else
 		echo -e "The Starbox has no ${RED}Failover${NC}"
-	fi	
+	fi
 }
 
 get_MAC() {
@@ -97,9 +97,9 @@ get_Disk() {
 }
 
 ping_Test() {
-	# Downloads a file to stress the network. Pings Star2Star SIP Server. 
+	# Downloads a file to stress the network. Pings Star2Star SIP Server.
 	echo -e "${YEL}Generating network traffic....${NC}"
-	screen -d -m wget -O /dev/null http://speedtest-ams2.digitalocean.com/100mb.test 
+	screen -d -m wget -O /dev/null http://speedtest-ams2.digitalocean.com/100mb.test
 	local pid=$(pidof wget)
 	while [[ "$pid" ]]; do
 		while [ "$pid" ]; do
@@ -113,33 +113,33 @@ ping_Test() {
 	echo -e "\n${YEL}Complete${NC}\n"
 }
 
-hmesg() {                                                                                                              
-	# Translate dmesg timestamps to human readable format 
+hmesg() {
+	# Translate dmesg timestamps to human readable format
 
-	# uptime in seconds                                                                                                     
-	local uptime=$(cut -d " " -f 1 /proc/uptime)                                                                                  
+	# uptime in seconds
+	local uptime=$(cut -d " " -f 1 /proc/uptime)
 
-	# remove fraction                                                                                                       
-	local uptime=$(echo $uptime | cut -d "." -f1)                                                                                 
+	# remove fraction
+	local uptime=$(echo $uptime | cut -d "." -f1)
 
-	# run only if timestamps are enabled                                                                                    
-	if [ "Y" = "$(cat /sys/module/printk/parameters/time)" ]; then                                                          
-  	dmesg | sed "s/[^\[]*\[/\[/" | sed "s/^\[[ ]*\?\([0-9.]*\)\] \(.*\)/\\1 \\2/" | while read timestamp message; do      
-	    timestamp=$(echo $timestamp | cut -d "." -f1)                                                                       
-	    ts1=$(( $(busybox date +%s) - $uptime + $timestamp ))                                                               
-	    ts2=$(busybox date -d "@${ts1}")                                                                                    
-    	printf "[%s] %s\n" "$ts2" "$message"                                                                                
-  	done                                                                                                                  
-	else                                                                                                                    
-  	echo "Timestamps are disabled (/sys/module/printk/parameters/time)"                                                   
+	# run only if timestamps are enabled
+	if [ "Y" = "$(cat /sys/module/printk/parameters/time)" ]; then
+  	dmesg | sed "s/[^\[]*\[/\[/" | sed "s/^\[[ ]*\?\([0-9.]*\)\] \(.*\)/\\1 \\2/" | while read timestamp message; do
+	    timestamp=$(echo $timestamp | cut -d "." -f1)
+	    ts1=$(( $(busybox date +%s) - $uptime + $timestamp ))
+	    ts2=$(busybox date -d "@${ts1}")
+    	printf "[%s] %s\n" "$ts2" "$message"
+  	done
+	else
+  	echo "Timestamps are disabled (/sys/module/printk/parameters/time)"
 	fi
 }
 
 get_Orion() {
 	# Checks the orion connection
-	if [ $imgCount -eq 1 2>/dev/null ]; then 
-		local connection=$(netstat -nat 2>/dev/null | grep 5038 | grep 199.15.181 | egrep -iom 1 'ESTABLISHED'); 
-	else 
+	if [ $imgCount -eq 1 2>/dev/null ]; then
+		local connection=$(netstat -nat 2>/dev/null | grep 5038 | grep 199.15.181 | egrep -iom 1 'ESTABLISHED');
+	else
 		local connection=$(netstat -nat 2>/dev/null | grep 8021 | grep 199.15.181 | egrep -iom 1 'ESTABLISHED');
 	fi
 
@@ -182,7 +182,7 @@ phone_Reg(){
 }
 
 subnet_Converter(){
-	# Calculates the current subnet size of the WAN. 
+	# Calculates the current subnet size of the WAN.
 
 	if [[ "$BRIP" ]]; then
 		subnet=$(ifconfig br-wan | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}') # Get subnet
@@ -194,24 +194,24 @@ subnet_Converter(){
 		subnet=$(ifconfig eth0 | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}') # Get subnet
 		octets=$(ifconfig eth0 | egrep -o '(255.255\.)[0-9]{1,3}\.[0-9]{1,3}' | tr '.' '\n') # Get octets
 	fi
-	
+
 	local n=$(echo "obase=2;$octets" | bc | awk '{s+=$1} END {print s}') # Convert to bits and add octets
 	local sd=0 # store single digit
-	 
+
 	# store number of digits
 	sub=0
-	 
+
 	# use while loop to caclulate the sum of all digits
 	while [[ $n -gt 0 ]]
 	do
-	    sd=$(( $n % 10 )) # get Remainder 
+	    sd=$(( $n % 10 )) # get Remainder
 	    n=$(( $n / 10 ))  # get next digit
 	    sub=$(( $sub + $sd )) # get sum of digits
 	done
 }
 
 get_NETIP(){
-	# Calculates the network address of the WAN based on the subnet and IP. 
+	# Calculates the network address of the WAN based on the subnet and IP.
 
 	if [ $imgCount -eq 1 2>/dev/null ]; then
 		if [[ "$BRIP" ]]; then
@@ -251,7 +251,7 @@ get_SpeDupDrop(){
 
 get_DNS(){
 	# Display DNS IP addresses
-	if [ $imgCount -eq 1 2>/dev/null ]; then 
+	if [ $imgCount -eq 1 2>/dev/null ]; then
 		dns=$(cat /mnt/kd/rc.conf.d/net_local.conf | egrep -i dns | grep -Eom 1 '([0-9]*\.){3}[0-9]*')
 		local printdns="DNS: ${RED}$dns${NC}"
 		echo -e $printdns
@@ -264,7 +264,7 @@ get_DNS(){
 
 get_TShape(){
 	# Display Traffic Shaping Settings
-	if [ $imgCount -eq 1 2>/dev/null ]; then 
+	if [ $imgCount -eq 1 2>/dev/null ]; then
 		local upload=$(cat /mnt/kd/rc.conf.d/qos.conf | grep -im 1 'up' | egrep -o '[0-9]+')
 		local download=$(cat /mnt/kd/rc.conf.d/qos.conf | grep -im 1 'down' | egrep -o '[0-9]+')
 		if [[ "$upload" ]]; then
@@ -293,7 +293,7 @@ get_TShape(){
 
 get_Calls(){
 	local pat="^[0-9]$"
-	if [ $imgCount -eq 1 2>/dev/null ]; then 
+	if [ $imgCount -eq 1 2>/dev/null ]; then
 		local calls=$(asterisk -rx 'core show channels' | egrep 'active call'| egrep -io '[0-9]')
 		echo -e "Active Calls: ${RED}$calls${NC}"
 	else
@@ -340,7 +340,7 @@ check_Parallel(){
 net_Dump(){
 	# Dumps network information into a file
 	echo -e "\n${YEL}Dumping Network Info /tmp/netinfo.txt${NC}\n"
-	if [ $imgCount -eq 1 2>/dev/null ]; then 
+	if [ $imgCount -eq 1 2>/dev/null ]; then
 		echo -e "\nInterfaces\n" > /tmp/netinfo.txt
 		ifconfig >> /tmp/netinfo.txt
 		echo -e "\nConfig\n" >> /tmp/netinfo.txt
@@ -440,7 +440,7 @@ fs_Advanced(){
 }
 
 tunnel(){
-	# This displays the link to tunnel to a device behind the starbox. 
+	# This displays the link to tunnel to a device behind the starbox.
 	if [[ "$tunLink" ]]; then
 		echo -e "Tunnel: ${RED}$tunLink${NC}"
 	fi
@@ -460,9 +460,9 @@ pcap_Search(){
 	local dir=""
 	read -p "Enter the pcap directory: " dir
 	echo -e "\n"
-	
+
 	ls $dir | grep '.' | while read file; do
-		echo -e "Now checking ${YEL}$file....${NC}" 
+		echo -e "Now checking ${YEL}$file....${NC}"
 		local input="$dir/$file"
 		if [[ "$endpoint" ]]; then
 			local numPat="^[0-9]+$"
@@ -506,30 +506,53 @@ pcapper(){
 	fi
 	cd $tstemp; mkdir tstemp
 	local pat="/$"
-	file=$(hostname)	
-	if [[ "$tstemp" =~ $pat ]]; then	
-		dir=$tstemp"tstemp/$file"	
-	else	
-		dir=$tstemp/tstemp/$file	
-	fi	
-	if [[ $size == 1 ]]; then	
-		screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E0.dump." $filter	
-		screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E1.dump." $filter	
-		screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E241.dump." $filter	
-	elif [[ $size == 2 ]]; then	
-		screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E0.dump." $filter	
-		screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E1.dump." $filter	
-		screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E241.dump." $filter	
-	elif [[ $size == 3 ]]; then	
-		screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E0.dump." $filter	
-		screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E1.dump." $filter	
-		screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E241.dump." $filter	
-	elif [[ $size == 4 ]]; then	
-		screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E0.dump." $filter	
-		screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E1.dump." $filter	
-		screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E241.dump." $filter	
-	else	
-		echo -e "${YEL}Invalid pcap size or tcpdump error${NC}"	
+	file=$(hostname)
+	if [[ "$tstemp" =~ $pat ]]; then
+		dir=$tstemp"tstemp/$file"
+	else
+		dir=$tstemp/tstemp/$file
+	fi
+	
+	if [ "$BRIP" ]; then
+		if [[ $size == 1 ]]; then
+			screen -d -m tcpdump -i br-wan -s0 -vv -n -Z root -C10 -W50 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E241.dump." $filter
+		elif [[ $size == 2 ]]; then
+			screen -d -m tcpdump -i br-wan -s0 -vv -n -Z root -C10 -W100 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E241.dump." $filter
+		elif [[ $size == 3 ]]; then
+			screen -d -m tcpdump -i br-wan -s0 -vv -n -Z root -C10 -W150 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E241.dump." $filter
+		elif [[ $size == 4 ]]; then
+			screen -d -m tcpdump -i br-wan -s0 -vv -n -Z root -C20 -W200 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E241.dump." $filter
+		else
+			echo -e "${YEL}Invalid pcap size or tcpdump error${NC}"
+		fi
+	else
+		if [[ $size == 1 ]]; then
+			screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W50 -w $dir"-E241.dump." $filter
+		elif [[ $size == 2 ]]; then
+			screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W100 -w $dir"-E241.dump." $filter
+		elif [[ $size == 3 ]]; then
+			screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C10 -W150 -w $dir"-E241.dump." $filter
+		elif [[ $size == 4 ]]; then
+			screen -d -m tcpdump -i eth0 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E0.dump." $filter
+			screen -d -m tcpdump -i eth1 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E1.dump." $filter
+			screen -d -m tcpdump -i eth2.41 -s0 -vv -n -Z root -C20 -W200 -w $dir"-E241.dump." $filter
+		else
+			echo -e "${YEL}Invalid pcap size or tcpdump error${NC}"
+		fi
 	fi
 
 	echo -e "${YEL}Packet Capture Process Started${NC}"
@@ -537,7 +560,7 @@ pcapper(){
 }
 
 scan_Chattr(){
-	# This scans the entire starbox for any chattr'd files. 
+	# This scans the entire starbox for any chattr'd files.
 	find / 2>/dev/null | while read file; do
         if [[ -f $file ]]; then
                 if [[ -w $file ]]; then
@@ -550,7 +573,7 @@ scan_Chattr(){
 }
 
 pcom_UI(){
-	# This enables the web UI on all polycom phones 
+	# This enables the web UI on all polycom phones
 
 	# Set the variables
 	local files=$(ls /mnt/kd/tftpboot/phone*.cfg | grep '.')
@@ -564,33 +587,33 @@ pcom_UI(){
 	echo -e "Complete"
 }
 
-check_Switch(){	
-	echo -e "\n${YEL}Scanning S2S Switches${NC}\n"	
-	nmap -sP 10.55.26.0/24 > /tmp/switch.txt	
-	DEVICES=$(egrep -io "(([a-zA-Z0-9]{2}:){5})" /tmp/switch.txt) # Check if any devices found. 	
-	if [[ "$DEVICES" ]]; then 	
-		egrep -i "(([a-zA-Z0-9]{2}:){5})" /tmp/switch.txt | while read MAC; do # If devices found grab the MACs. 	
-			IP=$(cat /tmp/switch.txt | egrep -iom 1 "([0-9]*\.){3}[0-9]*") # Grab the IP of the current device. 	
-			echo -e "${RED}Switch Found!${NC} IP: $IP $MAC ${NC}" # Dispay the scan results	
-			sed -i "/$IP/d" /tmp/switch.txt # Remove already listed device IP	
-			sed -i "/$MAC/d" /tmp/switch.txt # Remove already listed device MAC 	
-		done	
-	fi	
-	rm /tmp/switch.txt	
-	echo -e "\n${YEL}Complete${NC}\n"	
+check_Switch(){
+	echo -e "\n${YEL}Scanning S2S Switches${NC}\n"
+	nmap -sP 10.55.26.0/24 > /tmp/switch.txt
+	DEVICES=$(egrep -io "(([a-zA-Z0-9]{2}:){5})" /tmp/switch.txt) # Check if any devices found.
+	if [[ "$DEVICES" ]]; then
+		egrep -i "(([a-zA-Z0-9]{2}:){5})" /tmp/switch.txt | while read MAC; do # If devices found grab the MACs.
+			IP=$(cat /tmp/switch.txt | egrep -iom 1 "([0-9]*\.){3}[0-9]*") # Grab the IP of the current device.
+			echo -e "${RED}Switch Found!${NC} IP: $IP $MAC ${NC}" # Dispay the scan results
+			sed -i "/$IP/d" /tmp/switch.txt # Remove already listed device IP
+			sed -i "/$MAC/d" /tmp/switch.txt # Remove already listed device MAC
+		done
+	fi
+	rm /tmp/switch.txt
+	echo -e "\n${YEL}Complete${NC}\n"
 }
 
-tcp_Reg(){	
-	# This changes the starbox from UDP to TCP signaling 	
-	# Set the variables	
-	cd /mnt/kd/freeswitch/sip_profiles/s2s	
-	local files=$(ls /mnt/kd/freeswitch/sip_profiles/s2s | grep '.')	
-	string='udp'	
-	string2='tcp'	
-	# Replace the strings	
-	echo "Modifying $files"	
-	sed -i "s/$string/$string2/g" $files	
-	echo -e "Complete"	
+tcp_Reg(){
+	# This changes the starbox from UDP to TCP signaling
+	# Set the variables
+	cd /mnt/kd/freeswitch/sip_profiles/s2s
+	local files=$(ls /mnt/kd/freeswitch/sip_profiles/s2s | grep '.')
+	string='udp'
+	string2='tcp'
+	# Replace the strings
+	echo "Modifying $files"
+	sed -i "s/$string/$string2/g" $files
+	echo -e "Complete"
 }
 
 misc(){
@@ -610,8 +633,8 @@ misc(){
 			pcom_UI
 		elif [[ "$option" == 3 ]]; then
 			net_Dump
-		elif [[ "$option" == 4 ]]; then	
-			tcp_Reg	
+		elif [[ "$option" == 4 ]]; then
+			tcp_Reg
 			fs_Restart
 		elif [[ "$option" == 5 ]]; then
 			fs_Restart
@@ -660,7 +683,7 @@ net_Scan() {
 }
 
 custom_Scan() {
-	# Will re-work this to accept arguments to customize scan 
+	# Will re-work this to accept arguments to customize scan
 	read -p "Show network configuration and statistics? y/n: " nCheck
 	if [[ $nCheck == "y" ]]; then
 		get_TShape
@@ -671,7 +694,7 @@ custom_Scan() {
 	else
 		echo -e "${YEL}Skipping network stats....\n${NC}"
 	fi
-	
+
 
 	read -p "Check if the starbox is running in parallel? y/n: " checkPara
 	if [[ $checkPara == "y" ]]; then
@@ -690,10 +713,10 @@ custom_Scan() {
 	read -p "Show the routing and arp tables? y/n: " rtCheck
 	if [ $rtCheck == "y" 2>/dev/null ]; then
 		echo -e "${GRE}\nShowing Routing Table${NC}"
-		echo -e "=======================" 
+		echo -e "======================="
 		route -n
-		echo -e "${GRE}\nShowing ARP Table${NC}" 
-		echo -e "=======================" 
+		echo -e "${GRE}\nShowing ARP Table${NC}"
+		echo -e "======================="
 		arp
 		echo -e "\n"
 	else
@@ -704,12 +727,12 @@ custom_Scan() {
 	if [ $sbCheck == "y" 2>/dev/null ]; then
 		if [ $imgCount -eq 1 2>/dev/null ]; then
 		echo -e "${GRE}\nShowing Starbox Registrations${NC}"
-		echo -e "==========================================" 
+		echo -e "=========================================="
 		asterisk -rx 'sip show registry'
 		echo -e "\n"
 		else
 		echo -e "${GRE}\nShowing Starbox Registrations${NC}"
-		echo -e "==========================================" 
+		echo -e "=========================================="
 		fs_cli -x 'sofia status'
 		fi
 	else
@@ -721,7 +744,7 @@ custom_Scan() {
 
 	read -p "Check all dmesg errors? y/n " dmesgCheck
 	if [ $dmesgCheck == "y" 2>/dev/null ]; then
-		if [ $imgCount -eq 1 2>/dev/null ]; then 
+		if [ $imgCount -eq 1 2>/dev/null ]; then
 			dmesg
 		else
 		hmesg
@@ -732,8 +755,8 @@ custom_Scan() {
 	fi
 }
 
-main_Menu(){	
-	# Will re-work this menu using CASE at a later time. 
+main_Menu(){
+	# Will re-work this menu using CASE at a later time.
 	LOCID=$(hostname | egrep -o '[0-9]+')
 	echo -e "\n\n"
 	echo -e "${GRE}STARBOX UPTIME & INFORMATION FOR LOC: $LOCID${NC}"
@@ -793,7 +816,7 @@ main_Menu(){
 			pcapper
 		elif [[ $menu_Scan == 10 ]]; then
 			misc
-		elif [[ $menu_Scan == 11 ]]; then	
+		elif [[ $menu_Scan == 11 ]]; then
 			check_Switch
 		elif [[ $menu_Scan == 0 ]]; then
 			echo -e "\n${YEL}Exiting${NC}\n"
