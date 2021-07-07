@@ -29,9 +29,9 @@ main(){
 		echo -e "\t\t--update \tUpdate Lazy TSG"
 	}
 
-	pat="^[0-9]+$"
-	pat2="^([0-9]*\.){3}[0-9]*$"
-	pat3="(([a-zA-Z0-9]{2}){6})"
+	pat="^[0-9]+$" # valid integer
+	pat2="^([0-9]*\.){3}[0-9]*$" #valid IP address
+	pat3="(([a-zA-Z0-9]{2}){6})" #valid mac address
 
 	if [[ "$ARG1" ]]; then
 		if [[ "$ARG1" =~ $pat ]]; then
